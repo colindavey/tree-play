@@ -1,14 +1,10 @@
 import './App.css';
 import { useState } from 'react'
-// import TreeMenu from 'react-simple-tree-menu';
 import TreeMenu, { ItemComponent} from 'react-simple-tree-menu';
-// import { ListGroupItem, Input, ListGroup } from 'reactstrap';
-//, ListItem 
 
 // import default minimal styling or your own styling
 // import '../node_modules/react-simple-tree-menu/dist/main.css';
 import './tree.css';
-// Use the default minimal UI
 import ChildList from './childList.js'
 
 // as an array
@@ -37,32 +33,59 @@ const initTreeData = [
 ];
 
 const getNodes = (treeData, key) => {
-  console.log('key', key)
+  // console.log('key', key)
   const keys = key.split('/')
-  console.log('keys', keys)
+  // console.log('keys', keys)
 
   let nodes = treeData
   let node
   keys.forEach(k => {
-    console.log('forEach', k, nodes)
+    // console.log('forEach', k, nodes)
     node = nodes.find(el => el.key === k)
     nodes = node.nodes
   })
-  console.log(node.nodes)
+  // console.log(node.nodes)
   return node.nodes ? node.nodes : []
+}
+
+const makeChildList = (treeData, key) => {
+  const childNodes = getNodes(treeData, key)
+  const children =
+  childNodes ?
+  childNodes.map(item => {
+        let tmpItem = JSON.parse(JSON.stringify(item))
+        tmpItem.origNodes = tmpItem.nodes
+        tmpItem.nodes = []
+        return tmpItem
+    })
+  : []
+  return children
 }
 
 function App() {
   const [treeData, setTreeData] = useState(initTreeData)
   const initialActiveKey = initTreeData[0].key
-  const [children, setChildren] = useState(getNodes(treeData, initialActiveKey))
-  // console.log(treeData)
-  console.log('children', children)
+  const initialChildKey = initTreeData[0].nodes ? initTreeData[0].nodes[0].key : null
+  const [activeKey, setActiveKey] = useState(initialActiveKey)
+  const [childKey, setChildKey] = useState(initialChildKey)
+  const [children, setChildren] = useState(makeChildList(treeData, initialActiveKey))
 
-  const onClickItem = props => {
-    // console.log('click', props.nodes())
-    // console.log(treeData)
-    setChildren(getNodes(treeData, props.key))
+  // const onClickItem = ({key, nodes}) => {
+  const onClickItem = (props) => {
+    const key = props.key
+    console.log('clickedKey', key, props) //nodes)
+    setActiveKey(key)
+    // setChildKey(nodes ? `${activeKey}/${nodes[0].key}` : {})
+    setChildren(makeChildList(treeData, key))
+  }
+
+  const onChildClick = key => {
+    console.log('onChildClick', key, `${activeKey}/${key}`)
+    setChildKey(`${activeKey}/${key}`)
+  }
+
+  const onChildChange = () => {
+
   }
 
   return (
@@ -89,7 +112,9 @@ function App() {
                       <ItemComponent 
                         key={key}
                         {...props}
-                        style={props.label === '1.2' ? {backgroundColor: 'red'} : {}}
+                        style={
+                          key === childKey ? {background: '#ccc'} : {}
+                        }
                       />
                     ))}
                 </ul>
@@ -99,6 +124,9 @@ function App() {
           <div style={{float: 'left'}}>
             <ChildList
               children={children}
+              childKey={childKey}
+              onChildClick={onChildClick}
+              onChildChange={onChildChange}
             />
           </div>
         </div>
@@ -106,14 +134,5 @@ function App() {
     </div>
   );
 }
-//<div style={{float: 'left'}}>
-/*
-{({ items }) => (
-  <ul className='rstm-tree-item-group'>
-      {items.map(({key, ...props}) => (
-        <ItemComponent key={key} {...props} />
-      ))}
-  </ul>
-)}
-*/
+
 export default App;

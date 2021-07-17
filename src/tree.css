@@ -28,7 +28,8 @@
   
 .rstm-tree-item--active {
     color: white;
-    background: #179ed3;
+    /* background: #179ed3; */
+    background: #999;
     border-bottom: none; 
 }
 
