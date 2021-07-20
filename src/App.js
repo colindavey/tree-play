@@ -50,14 +50,14 @@ const getNodes = (treeData, key) => {
 const makeChildList = (treeData, key) => {
   const childNodes = getNodes(treeData, key)
   const childData =
-  childNodes ?
-  childNodes.map(item => {
-        let tmpItem = JSON.parse(JSON.stringify(item))
-        tmpItem.origNodes = tmpItem.nodes
-        tmpItem.nodes = []
-        return tmpItem
-    })
-  : []
+    childNodes 
+      ? childNodes.map(item => {
+          let tmpItem = JSON.parse(JSON.stringify(item))
+          tmpItem.origNodes = tmpItem.nodes
+          tmpItem.nodes = []
+          return tmpItem
+        })
+      : []
   return childData
 }
 
@@ -132,8 +132,8 @@ function App() {
     setChildKey(key)
   }
 
-  const onChildChange = () => {
-
+  const onChildChange = (childData) => {
+    console.log('onChildChange', childData)
   }
 
   return (

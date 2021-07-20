@@ -1,31 +1,37 @@
 // import { useState } from 'react'
 import TreeMenu from 'react-simple-tree-menu';
 
+const moveItem = (data, from, to) => {
+    console.log('moveItem', data, from, to)
+    // remove `from` item and store it
+    var f = data.splice(from, 1)[0];
+    // insert stored item into position `to`
+    data.splice(to, 0, f);
+    console.log('  ', data)
+}
+
+const getOldIndex = (data, key) => {
+    return data.findIndex(item => item.key === key)
+}
+
 export default function ChildList({childData, childKey, path, onChildClick, onChildChange}) {
     const onClickItem = ({key}) => {
         onChildClick(key)
     }
 
-    // initialActiveKey={initialActiveKey}
-    const moveItem = (data, from, to) => {
-        console.log('moveItem', data, from, to)
-        // remove `from` item and store it
-        var f = data.splice(from, 1)[0];
-        // insert stored item into position `to`
-        data.splice(to, 0, f);
-        console.log('  ', data)
-    }
-
-    const getOldIndex = (data, key) => {
-        return data.findIndex(item => item.key === key)
-    }
-
     const deleteChild = () => {
         console.log('delete')
+        const oldIndex = getOldIndex(childData, childKey)
+        childData.splice(oldIndex, 1)
+        onChildChange(childData)
     }
 
     const promoteToFirstChild = () => {
-        console.log('promote')
+        const oldIndex = getOldIndex(childData, childKey)
+        if (oldIndex !== 0) {
+            moveItem(childData, oldIndex, 0)
+        }
+        onChildChange(childData)
     }
 
     const promoteChild = () => {
@@ -33,6 +39,7 @@ export default function ChildList({childData, childKey, path, onChildClick, onCh
         if (oldIndex !== 0) {
             moveItem(childData, oldIndex, oldIndex - 1)
         }
+        onChildChange(childData)
     }
 
     const demoteChild = () => {
@@ -40,6 +47,7 @@ export default function ChildList({childData, childKey, path, onChildClick, onCh
         if (oldIndex !== childData.length - 1) {
             moveItem(childData, oldIndex, oldIndex + 1)
         }
+        onChildChange(childData)
     }
 
     return (
