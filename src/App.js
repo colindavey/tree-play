@@ -27,30 +27,29 @@ const initTreeData = [
       {
         key: 'k1.2',
         label: '1.2',
+      },
+      {
+        key: 'k1.3',
+        label: '1.3',
       }
     ]
   }
 ];
 
 const getNodes = (treeData, key) => {
-  // console.log('key', key)
   const keys = key.split('/')
-  // console.log('keys', keys)
-
   let nodes = treeData
   let node
   keys.forEach(k => {
-    // console.log('forEach', k, nodes)
     node = nodes.find(el => el.key === k)
     nodes = node.nodes
   })
-  // console.log(node.nodes)
   return node.nodes ? node.nodes : []
 }
 
 const makeChildList = (treeData, key) => {
   const childNodes = getNodes(treeData, key)
-  const children =
+  const childData =
   childNodes ?
   childNodes.map(item => {
         let tmpItem = JSON.parse(JSON.stringify(item))
@@ -59,71 +58,47 @@ const makeChildList = (treeData, key) => {
         return tmpItem
     })
   : []
-  return children
+  return childData
 }
 
-function App() {
-  const [treeData, setTreeData] = useState(initTreeData)
-  const initialActiveKey = initTreeData[0].key
-  const initialChildKey = initTreeData[0].nodes ? initTreeData[0].nodes[0].key : null
-  const [activeKey, setActiveKey] = useState(initialActiveKey)
-  const [childKey, setChildKey] = useState(initialChildKey)
-  const [children, setChildren] = useState(makeChildList(treeData, initialActiveKey))
-
-  // const onClickItem = ({key, nodes}) => {
-  const onClickItem = (props) => {
-    const key = props.key
-    console.log('clickedKey', key, props) //nodes)
-    setActiveKey(key)
-    // setChildKey(nodes ? `${activeKey}/${nodes[0].key}` : {})
-    setChildren(makeChildList(treeData, key))
-  }
-
-  const onChildClick = key => {
-    console.log('onChildClick', key, `${activeKey}/${key}`)
-    setChildKey(`${activeKey}/${key}`)
-  }
-
-  const onChildChange = () => {
-
-  }
-
+const TreeEditor = ({treeData, treeKey, childData, childKey, onTreeItemClick, onChildClick, onChildChange}) => {
   return (
     <div>
-      <div>
-        <input>
-        </input>
-        <button type='button'>
-          Add
-        </button>
-      </div>
       <div >
         <div>
           <div style={{float: 'left', width: '50%'}}>
             <TreeMenu
               data={treeData}
               hasSearch={false}
-              onClickItem={onClickItem}
-              initialActiveKey={initialActiveKey}
+              onClickItem={onTreeItemClick}
+              initialActiveKey={treeKey}
+              activeKey={treeKey}
+              initialFocusKey={treeKey}
+              focusKey={treeKey}
             >
               {({ items }) => (
                 <ul className='rstm-tree-item-group'>
-                    {items.map(({key, ...props}) => (
-                      <ItemComponent 
-                        key={key}
-                        {...props}
-                        style={
-                          key === childKey ? {background: '#ccc'} : {}
-                        }
-                      />
-                    ))}
+                    {
+                      items.map(({key, ...props}) => {
+                        // console.log('loop', treeKey, childKey)
+                        return (
+                          <ItemComponent 
+                            key={key}
+                            {...props}
+                            style={
+                              key === `${treeKey}/${childKey}` ? {background: '#ccc'} : {}
+                            }
+                          />
+                        )
+                      })
+                    }
                 </ul>
               )}
             </TreeMenu>
           </div>
           <div style={{float: 'left'}}>
             <ChildList
-              children={children}
+              childData={childData}
               childKey={childKey}
               onChildClick={onChildClick}
               onChildChange={onChildChange}
@@ -132,6 +107,49 @@ function App() {
         </div>
       </div>
     </div>
+  )
+}
+
+function App() {
+  const initialTreeKey = initTreeData[0].key
+  const initialChildKey = initTreeData[0].nodes ? initTreeData[0].nodes[0].key : null
+  const [treeData, setTreeData] = useState(initTreeData)
+  const [treeKey, setTreeKey] = useState(initialTreeKey)
+  const [childKey, setChildKey] = useState(initialChildKey)
+  const [childData, setChildData] = useState(makeChildList(treeData, initialTreeKey))
+
+  // const onTreeItemClick = ({key, nodes}) => {
+  const onTreeItemClick = (props) => {
+    const key = props.key
+    setTreeKey(key)
+    const childData = makeChildList(treeData, key)
+    setChildData(childData)
+    const childKey = childData[0] ? childData[0].key : null
+    setChildKey(childKey)
+  }
+
+  const onChildClick = key => {
+    setChildKey(key)
+  }
+
+  const onChildChange = () => {
+
+  }
+
+  return (
+    <div>
+      <input></input>
+      <button type='button'>Add</button>
+      <TreeEditor
+        treeData={treeData}
+        treeKey={treeKey}
+        childData={childData}
+        childKey={childKey}
+        onTreeItemClick={onTreeItemClick}
+        onChildClick={onChildClick}
+        onChildChange={onChildChange}
+      />
+      </div>
   );
 }
 
