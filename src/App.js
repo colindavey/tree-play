@@ -36,7 +36,7 @@ const initTreeData = [
   }
 ];
 
-const getNodes = (treeData, key) => {
+const getNode = (treeData, key) => {
   const keys = key.split('/')
   let nodes = treeData
   let node
@@ -44,13 +44,14 @@ const getNodes = (treeData, key) => {
     node = nodes.find(el => el.key === k)
     nodes = node.nodes
   })
-  return node.nodes ? node.nodes : []
+  return node
 }
 
 const makeChildList = (treeData, key) => {
-  const childNodes = getNodes(treeData, key)
+  const parentNode = getNode(treeData, key)
+  const childNodes = parentNode.nodes ? parentNode.nodes : []
   const childData =
-    childNodes 
+    childNodes
       ? childNodes.map(item => {
           let tmpItem = JSON.parse(JSON.stringify(item))
           tmpItem.origNodes = tmpItem.nodes
@@ -59,6 +60,20 @@ const makeChildList = (treeData, key) => {
         })
       : []
   return childData
+}
+
+const replaceChildNodes = (treeData, key, childNodes) => {
+  const parentNode = getNode(treeData, key)
+  parentNode.nodes = 
+  childNodes
+    ? childNodes.map(item => {
+        let tmpItem = JSON.parse(JSON.stringify(item))
+        tmpItem.nodes = tmpItem.origNodes
+        tmpItem.origNodes = []
+        return tmpItem
+      })
+    : []
+  return treeData
 }
 
 const TreeEditor = ({treeData, treeKey, childData, childKey, onTreeItemClick, onChildClick, onChildChange}) => {
@@ -134,6 +149,10 @@ function App() {
 
   const onChildChange = (childData) => {
     console.log('onChildChange', childData)
+    const newTreeData = replaceChildNodes(treeData, treeKey, childData)
+    setTreeData(newTreeData)
+    const newChildData = makeChildList(newTreeData, treeKey)
+    setChildData(newChildData)
   }
 
   return (
