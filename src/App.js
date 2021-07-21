@@ -10,27 +10,30 @@ import ChildList from './childList.js'
 // as an array
 const initTreeData = [
   {
-    key: 'k1',
-    label: '1',
+    key: 'd4',
+    label: '1. d4',
     nodes: [
       {
-        key: 'k1.1',
-        label: '1.1',
-        nodes: [
-          {
-            key: 'k1.1.1',
-            label: '1.1.1',
-            nodes: [] // you can remove the nodes property or leave it as an empty array
-          },
-        ],
+        key: 'd5',
+        label: '1... d5',
       },
       {
-        key: 'k1.2',
-        label: '1.2',
+        key: 'e5',
+        label: '1... e5',
+      }
+    ]
+  },
+  {
+    key: 'd3',
+    label: '1. d3',
+    nodes: [
+      {
+        key: 'd5',
+        label: '1... d5',
       },
       {
-        key: 'k1.3',
-        label: '1.3',
+        key: 'e5',
+        label: '1... e5',
       }
     ]
   }
@@ -82,6 +85,8 @@ const TreeEditor = ({treeData, treeKey, childData, childKey, onTreeItemClick, on
       <div >
         <div>
           <div style={{float: 'left', width: '50%'}}>
+            <input></input>
+            <button type='button'>Add</button>
             <TreeMenu
               data={treeData}
               hasSearch={false}
@@ -157,8 +162,6 @@ function App() {
 
   return (
     <div>
-      <input></input>
-      <button type='button'>Add</button>
       <TreeEditor
         treeData={treeData}
         treeKey={treeKey}
