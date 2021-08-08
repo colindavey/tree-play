@@ -10,34 +10,72 @@ import ChildList from './childList.js'
 // as an array
 const initTreeData = [
   {
-    key: 'd4',
-    label: '1. d4',
+    key: 'root',
+    label: 'start',
     nodes: [
       {
-        key: 'd5',
-        label: '1... d5',
+        key: 'd4',
+        label: '1. d4',
+        nodes: [
+          {
+            key: 'd5',
+            label: '1... d5',
+          },
+          {
+            key: 'e5',
+            label: '1... e5',
+          }
+        ]
       },
       {
-        key: 'e5',
-        label: '1... e5',
-      }
-    ]
-  },
-  {
-    key: 'd3',
-    label: '1. d3',
-    nodes: [
-      {
-        key: 'd5',
-        label: '1... d5',
-      },
-      {
-        key: 'e5',
-        label: '1... e5',
+        key: 'd3',
+        label: '1. d3',
+        nodes: [
+          {
+            key: 'd5',
+            label: '1... d5',
+          },
+          {
+            key: 'e5',
+            label: '1... e5',
+          }
+        ]
       }
     ]
   }
 ];
+
+// as an array
+// const initTreeData = [
+//   {
+//     key: 'd4',
+//     label: '1. d4',
+//     nodes: [
+//       {
+//         key: 'd5',
+//         label: '1... d5',
+//       },
+//       {
+//         key: 'e5',
+//         label: '1... e5',
+//       }
+//     ]
+//   },
+//   {
+//     key: 'd3',
+//     label: '1. d3',
+//     nodes: [
+//       {
+//         key: 'd5',
+//         label: '1... d5',
+//       },
+//       {
+//         key: 'e5',
+//         label: '1... e5',
+//       }
+//     ]
+//   }
+// ];
 
 const getNode = (treeData, key) => {
   const keys = key.split('/')
@@ -79,52 +117,78 @@ const replaceChildNodes = (treeData, key, childNodes) => {
   return treeData
 }
 
+const GameInfo = ({ treeKey, childData, onChildChange }) => {
+  console.log('GameInfo', childData)
+  const [value, setValue] = useState('')
+  const [enabled, setEnabled] = useState(false)
+
+  const onChange = (e) => {
+    console.log('change', e.target.value)
+    setValue(e.target.value)
+    setEnabled(e.target.value ? true : false)
+  }
+
+  const onClick = () => {
+    console.log('click', childData)
+    childData.push({key: value, label: value, nodes: [], origNodes: []})
+    console.log('  ', childData)
+    onChildChange(childData)
+  }
+
+  return (
+    <>
+      <input id='move' onChange={onChange}></input>
+      <button type='button' disabled={!enabled} onClick={onClick}>Add</button>
+      <p>{treeKey}</p>
+    </>
+  )
+}
+
 const TreeEditor = ({treeData, treeKey, childData, childKey, onTreeItemClick, onChildClick, onChildChange}) => {
   return (
     <div>
-      <div >
-        <div>
-          <div style={{float: 'left', width: '50%'}}>
-            <input></input>
-            <button type='button'>Add</button>
-            <TreeMenu
-              data={treeData}
-              hasSearch={false}
-              onClickItem={onTreeItemClick}
-              initialActiveKey={treeKey}
-              activeKey={treeKey}
-              initialFocusKey={treeKey}
-              focusKey={treeKey}
-            >
-              {({ items }) => (
-                <ul className='rstm-tree-item-group'>
-                    {
-                      items.map(({key, ...props}) => {
-                        // console.log('loop', treeKey, childKey)
-                        return (
-                          <ItemComponent 
-                            key={key}
-                            {...props}
-                            style={
-                              key === `${treeKey}/${childKey}` ? {background: '#ccc'} : {}
-                            }
-                          />
-                        )
-                      })
-                    }
-                </ul>
-              )}
-            </TreeMenu>
-          </div>
-          <div style={{float: 'left'}}>
-            <ChildList
-              childData={childData}
-              childKey={childKey}
-              onChildClick={onChildClick}
-              onChildChange={onChildChange}
-            />
-          </div>
-        </div>
+      <GameInfo 
+        treeKey={treeKey}
+        childData={childData}
+        onChildChange={onChildChange}
+      />
+      <div style={{float: 'left', width: '50%'}}>
+        <TreeMenu
+          data={treeData}
+          hasSearch={false}
+          onClickItem={onTreeItemClick}
+          initialActiveKey={treeKey}
+          activeKey={treeKey}
+          initialFocusKey={treeKey}
+          focusKey={treeKey}
+        >
+          {({ items }) => (
+            <ul className='rstm-tree-item-group'>
+                {
+                  items.map(({key, ...props}) => {
+                    // console.log('loop', treeKey, childKey)
+                    return (
+                      <ItemComponent 
+                        key={key}
+                        {...props}
+                        style={
+                          key === `${treeKey}/${childKey}` ? {background: '#ccc'} : {}
+                        }
+                      />
+                    )
+                  })
+                }
+            </ul>
+          )}
+        </TreeMenu>
+      </div>
+      <div style={{float: 'left', paddingTop: '0px'}}>
+        <ChildList
+          childData={childData}
+          childKey={childKey}
+          onChildClick={onChildClick}
+          onChildChange={onChildChange}
+        />
       </div>
     </div>
   )
@@ -141,6 +205,7 @@ function App() {
   // const onTreeItemClick = ({key, nodes}) => {
   const onTreeItemClick = (props) => {
     const key = props.key
+    console.log(key)
     setTreeKey(key)
     const childData = makeChildList(treeData, key)
     setChildData(childData)
