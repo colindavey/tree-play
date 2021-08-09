@@ -8,6 +8,14 @@ import './tree.css';
 import ChildList from './childList.js'
 
 // as an array
+// const initTreeData = [
+//   {
+//     key: 'root',
+//     label: 'start',
+//     nodes: []
+//   }
+// ];
+
 const initTreeData = [
   {
     key: 'root',
@@ -117,6 +125,16 @@ const replaceChildNodes = (treeData, key, childNodes) => {
   return treeData
 }
 
+const treeKey2NumPly = (treeKey) => {
+  const plys = treeKey.split('/')
+  return plys.length
+}
+
+const numPly2Decorator = (numPly) => {
+  const numMoves = Math.ceil(numPly/2)
+  return `${numMoves}.${(numPly%2 === 0) ? '..' : ''}`
+}
+
 const GameViewMock = ({ treeKey, childData, onChildChange, selectTreeItem }) => {
   const [value, setValue] = useState('')
   const [enabled, setEnabled] = useState(false)
@@ -129,8 +147,10 @@ const GameViewMock = ({ treeKey, childData, onChildChange, selectTreeItem }) => 
   const addChild = () => {
     const values = childData.map(item => item.key)
     console.log('addChild', childData, values, value)
+    const decorator = numPly2Decorator(treeKey2NumPly(treeKey))
+    console.log(decorator)
     if (!values.includes(value)) {
-      childData.push({key: value, label: value, nodes: [], origNodes: []})
+      childData.push({key: value, label: `${decorator} ${value}`, nodes: [], origNodes: []})
       onChildChange(childData)
     }
     selectTreeItem(`${treeKey}/${value}`)
@@ -216,7 +236,9 @@ function App() {
     const childData = makeChildList(treeData, key)
     setChildData(childData)
     const childKey = childData[0] ? childData[0].key : null
-    setChildKey(childKey)
+    // if (childKey) {
+      setChildKey(childKey)
+    // }
   }
 
   const onChildClick = key => {
