@@ -117,40 +117,42 @@ const replaceChildNodes = (treeData, key, childNodes) => {
   return treeData
 }
 
-const GameInfo = ({ treeKey, childData, onChildChange }) => {
-  console.log('GameInfo', childData)
+const GameViewMock = ({ treeKey, childData, onChildChange, selectTreeItem }) => {
   const [value, setValue] = useState('')
   const [enabled, setEnabled] = useState(false)
 
   const onChange = (e) => {
-    console.log('change', e.target.value)
     setValue(e.target.value)
     setEnabled(e.target.value ? true : false)
   }
 
-  const onClick = () => {
-    console.log('click', childData)
-    childData.push({key: value, label: value, nodes: [], origNodes: []})
-    console.log('  ', childData)
-    onChildChange(childData)
+  const addChild = () => {
+    const values = childData.map(item => item.key)
+    console.log('addChild', childData, values, value)
+    if (!values.includes(value)) {
+      childData.push({key: value, label: value, nodes: [], origNodes: []})
+      onChildChange(childData)
+    }
+    selectTreeItem(`${treeKey}/${value}`)
   }
 
   return (
     <>
       <input id='move' onChange={onChange}></input>
-      <button type='button' disabled={!enabled} onClick={onClick}>Add</button>
+      <button type='button' disabled={!enabled} onClick={addChild}>Add</button>
       <p>{treeKey}</p>
     </>
   )
 }
 
-const TreeEditor = ({treeData, treeKey, childData, childKey, onTreeItemClick, onChildClick, onChildChange}) => {
+const TreeEditor = ({treeData, treeKey, childData, childKey, onTreeItemClick, onChildClick, onChildChange, setChildKey, selectTreeItem}) => {
   return (
     <div>
-      <GameInfo 
+      <GameViewMock
         treeKey={treeKey}
         childData={childData}
         onChildChange={onChildChange}
+        selectTreeItem={selectTreeItem}
       />
       <div style={{float: 'left', width: '50%'}}>
         <TreeMenu
@@ -188,6 +190,7 @@ const TreeEditor = ({treeData, treeKey, childData, childKey, onTreeItemClick, on
           childKey={childKey}
           onChildClick={onChildClick}
           onChildChange={onChildChange}
+          setChildKey={setChildKey}
         />
       </div>
     </div>
@@ -205,7 +208,10 @@ function App() {
   // const onTreeItemClick = ({key, nodes}) => {
   const onTreeItemClick = (props) => {
     const key = props.key
-    console.log(key)
+    selectTreeItem(key)
+  }
+
+  const selectTreeItem = key => {
     setTreeKey(key)
     const childData = makeChildList(treeData, key)
     setChildData(childData)
@@ -218,7 +224,6 @@ function App() {
   }
 
   const onChildChange = (childData) => {
-    console.log('onChildChange', childData)
     const newTreeData = replaceChildNodes(treeData, treeKey, childData)
     setTreeData(newTreeData)
     const newChildData = makeChildList(newTreeData, treeKey)
@@ -235,6 +240,8 @@ function App() {
         onTreeItemClick={onTreeItemClick}
         onChildClick={onChildClick}
         onChildChange={onChildChange}
+        setChildKey={setChildKey}
+        selectTreeItem={selectTreeItem}
       />
       </div>
   );

@@ -14,7 +14,7 @@ const getOldIndex = (data, key) => {
     return data.findIndex(item => item.key === key)
 }
 
-export default function ChildList({childData, childKey, path, onChildClick, onChildChange}) {
+export default function ChildList({childData, childKey, path, onChildClick, onChildChange, setChildKey}) {
     const onClickItem = ({key}) => {
         onChildClick(key)
     }
@@ -24,6 +24,8 @@ export default function ChildList({childData, childKey, path, onChildClick, onCh
         const oldIndex = getOldIndex(childData, childKey)
         childData.splice(oldIndex, 1)
         onChildChange(childData)
+        const newIndex = oldIndex <= childData.length-1 ? oldIndex : oldIndex-1
+        setChildKey(childData[newIndex].key)
     }
 
     const promoteToFirstChild = () => {
